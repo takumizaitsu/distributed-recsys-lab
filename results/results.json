@@ -1,5 +1,16 @@
 {
+  "dataset": "ml-latest-small",
   "num_rows": 100836,
   "num_users": 610,
-  "num_items": 9724
+  "num_items": 9724,
+  "mf": {
+    "method": "truncated_svd",
+    "factors": 64,
+    "k": 10,
+    "seed": 42,
+    "eval_users": 587,
+    "test_rows": 610,
+    "recall@10": 0.07836456558773425,
+    "ndcg@10": 0.03489174805281813
+  }
 }
