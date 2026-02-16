@@ -8,8 +8,14 @@
     "factors": 64,
     "k": 10,
     "seed": 42,
-    "eval_users": 587,
+    "train_interactions": 100226,
     "test_rows": 610,
+    "eval_users": 587,
+    "eval_drop": {
+      "missing_user_in_train": 0,
+      "missing_item_in_train": 23
+    },
+    "wall_time_sec": 0.2011561249382794,
     "recall@10": 0.07836456558773425,
     "ndcg@10": 0.03489174805281813
   }
