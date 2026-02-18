@@ -19,6 +19,8 @@ from src.mf import (  # noqa: E402
     recommend_topk,
 )
 from src.metrics import recall_at_k, ndcg_at_k  # noqa: E402
+from src.baselines import recommend_popularity_topk  # noqa: E402
+
 
 
 DATASET_NAME = "ml-latest-small"
@@ -44,13 +46,16 @@ def main() -> None:
     )
     recommendations = recommend_topk(train_matrix, user_factors, item_factors, k=TOPK)
 
+    pop_recs_full = recommend_popularity_topk(train, test, k=TOPK)
+
     truth = []
-    filtered_recs = []
+    filtered_mf_recs = []
+    filtered_pop_recs = []
 
     missing_user_in_train = 0
     missing_item_in_train = 0
 
-    for row in test.itertuples(index=False):
+    for i, row in enumerate(test.itertuples(index=False)):
         user_id = int(row.userId)
         item_id = int(row.movieId)
 
@@ -63,13 +68,20 @@ def main() -> None:
 
         uidx = maps.user_to_index[user_id]
         truth.append([maps.item_to_index[item_id]])
-        filtered_recs.append(recommendations[uidx])
+
+        filtered_mf_recs.append(recommendations[uidx])
+        # popularityはraw movieIdなので、truthと同じ空間にするためmovieId→index変換する
+        filtered_pop_recs.append([maps.item_to_index[x] for x in pop_recs_full[i] if x in maps.item_to_index])
 
     eval_users = len(truth)
     test_rows = len(test)
+    
+    mf_r10 = recall_at_k(filtered_mf_recs, truth, k=TOPK)
+    mf_n10 = ndcg_at_k(filtered_mf_recs, truth, k=TOPK)
 
-    r10 = recall_at_k(filtered_recs, truth, k=TOPK)
-    n10 = ndcg_at_k(filtered_recs, truth, k=TOPK)
+    pop_r10 = recall_at_k(filtered_pop_recs, truth, k=TOPK)
+    pop_n10 = ndcg_at_k(filtered_pop_recs, truth, k=TOPK)
+
 
     wall_time_sec = float(time.perf_counter() - start)
 
@@ -79,6 +91,9 @@ def main() -> None:
         "num_rows": stats.num_rows,
         "num_users": stats.num_users,
         "num_items": stats.num_items,
+        "baselines": {
+            "popularity": {"k": TOPK, "recall@10": pop_r10, "ndcg@10": pop_n10}
+            },
         "mf": {
             "method": "truncated_svd",
             "factors": N_FACTORS,
@@ -92,8 +107,8 @@ def main() -> None:
                 "missing_item_in_train": missing_item_in_train,
             },
             "wall_time_sec": wall_time_sec,
-            "recall@10": r10,
-            "ndcg@10": n10,
+            "recall@10": mf_r10,
+            "ndcg@10": mf_n10,
         },
     }
 

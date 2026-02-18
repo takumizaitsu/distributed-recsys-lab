@@ -3,6 +3,13 @@
   "num_rows": 100836,
   "num_users": 610,
   "num_items": 9724,
+  "baselines": {
+    "popularity": {
+      "k": 10,
+      "recall@10": 0.044293015332197615,
+      "ndcg@10": 0.020191782808255225
+    }
+  },
   "mf": {
     "method": "truncated_svd",
     "factors": 64,
@@ -15,7 +22,7 @@
       "missing_user_in_train": 0,
       "missing_item_in_train": 23
     },
-    "wall_time_sec": 0.2011561249382794,
+    "wall_time_sec": 0.20369741693139076,
     "recall@10": 0.07836456558773425,
     "ndcg@10": 0.03489174805281813
   }
